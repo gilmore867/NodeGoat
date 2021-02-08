@@ -42,7 +42,36 @@ jobs:
           root: ..
           paths:
             - nodegoat
+
+  # run the Veracode Pipeline scan
+  veracode_pipeline_scan:
+
+    # use the official Veracode Docker image
+    docker:
+      - image: veracode/pipeline-scan:latest
       
+    working_directory: ~/repo
+    
+    steps:
+      # get the files from the previous job
+      - attach_workspace:
+          at: .
+          
+      # 'package' for uploading to Veracode
+      - run: 
+          name: "Package for upload to Veracode"
+          #command: zip -r upload.zip nodegoat
+          command: zip -r upload.zip nodegoat -x *node_modules/*
+
+      # upload for scanning
+      # env vars are used to pass login creds and set the scan name
+      - run:
+          name: "Upload to Veracode"
+          command: java -jar /opt/veracode/pipeline-scan.jar 
+              -vid $VERACODE_API_ID 
+              -vkey $VERACODE_API_KEY 
+              --file upload.zip
+
   # job to upload to Veracode for scanning
   veracode_scan:
 
@@ -104,15 +133,23 @@ jobs:
             curl -sSL https://download.sourceclear.com/ci.sh | bash
 
 # serial jobs - need to run 'build' before 'scan'
+# workflows:
+#   version: 2
+#   build_and_scan:
+#     jobs:
+#       - build
+#       - veracode_scan:
+#           requires:
+#             - build
+#       - srcclr_scan:
+#           requires:
+#             - build
+
 workflows:
   version: 2
-  build_and_scan:
+  build_and_pipeline_scan:
     jobs:
       - build
-      - veracode_scan:
+      - veracode_pipeline_scan:
           requires:
             - build
-      - srcclr_scan:
-          requires:
-            - build
-
