@@ -1,0 +1,57 @@
+# test of pipeline scan and Issue importer
+
+name: Pipeline scan and Issue importer
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+
+      - name: package (zip)
+        run: zip -r upload.zip nodegoat -x *node_modules/*
+
+      - name: save archive
+        uses: actions/upload-artifact@v2
+        with:
+          name: scan-target
+          path: upload.zip
+
+  scan:
+    runs-on: ubuntu-latest
+    container: veracode/pipeline-scan:latest
+    steps:
+      - name: get archive
+        uses: actions/download-artifact@v2
+        with:
+          name: scan-target
+
+      - name: scan
+        run: |
+          java -jar /opt/veracode/pipeline-scan.jar 
+              -vid ${{ secrets.VERACODE_API_ID }}
+              -vkey ${{ secrets.VERACODE_API_KEY }}
+              --file upload.zip
+              --fail_on_severity="Very High,High"
+
+      - name: save filtered results file
+        uses: actions/upload-artifact@v2
+        with:
+          name: filtered-results
+          path: filtered_results.json
+
+  # import-issues:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: get scan results
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: filtered-results
+
+  #     - name: import flaws
+  #       uses: my flaw importer
+
+
