@@ -13,11 +13,6 @@ jobs:
         with:
           path: nodegoat
 
-      - name: debug1
-        run: |
-          ls -l
-          ls -l nodegoat
-
       - name: package (zip)
         run: zip -r upload.zip nodegoat -x *node_modules/* *.git/*
 
@@ -37,15 +32,26 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: scan-target
-          path: .
+          path: /tmp
+
+      - name: debug1
+        run: |
+          ls -l
+          ls -l /tmp
 
       - name: scan
         run: |
           java -jar /opt/veracode/pipeline-scan.jar 
               -vid ${{ secrets.VERACODE_API_ID }}
               -vkey ${{ secrets.VERACODE_API_KEY }}
-              --file upload.zip
+              --file /tmp/upload.zip
               --fail_on_severity="Very High,High"
+        continue-on-error: true
+
+      - name: debug2
+        run: |
+          ls -l
+          ls -l /tmp
 
       - name: save filtered results file
         uses: actions/upload-artifact@v2
