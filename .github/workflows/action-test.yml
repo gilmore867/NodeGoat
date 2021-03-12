@@ -19,7 +19,7 @@ jobs:
           ls -l nodegoat
 
       - name: package (zip)
-        run: zip -r upload.zip nodegoat -x *node_modules/*
+        run: zip -r upload.zip nodegoat -x *node_modules/* *.git/*
 
       - name: save archive
         uses: actions/upload-artifact@v2
@@ -35,6 +35,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: scan-target
+          path: .
 
       - name: scan
         run: |
