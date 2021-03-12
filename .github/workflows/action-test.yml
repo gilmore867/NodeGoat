@@ -41,11 +41,11 @@ jobs:
 
       - name: scan
         run: |
-          java -jar /opt/veracode/pipeline-scan.jar 
-              -vid ${{ secrets.VERACODE_API_ID }}
-              -vkey ${{ secrets.VERACODE_API_KEY }}
-              --file /tmp/upload.zip
-              --fail_on_severity="Very High,High"
+          java -jar /opt/veracode/pipeline-scan.jar \
+              -vid ${{ secrets.VERACODE_API_ID }}   \
+              -vkey ${{ secrets.VERACODE_API_KEY }} \
+              --file /tmp/upload.zip                \
+              --fail_on_severity="Very High,High"   \
         continue-on-error: true
 
       - name: debug2
