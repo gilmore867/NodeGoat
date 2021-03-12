@@ -29,7 +29,9 @@ jobs:
 
   scan:
     runs-on: ubuntu-latest
-    #container: veracode/pipeline-scan:latest
+    container: 
+      image: veracode/pipeline-scan:latest
+      options: --user root
     steps:
       - name: get archive
         uses: actions/download-artifact@v2
