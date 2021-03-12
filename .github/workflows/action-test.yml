@@ -23,6 +23,7 @@ jobs:
           path: upload.zip
 
   scan:
+    needs: package
     runs-on: ubuntu-latest
     container: 
       image: veracode/pipeline-scan:latest
@@ -62,6 +63,7 @@ jobs:
           path: filtered_results.json
 
   import-issues:
+    needs: scan
     runs-on: ubuntu-latest
     steps:
       - name: get scan results
