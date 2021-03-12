@@ -10,13 +10,16 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v2
+        with:
+          path: nodegoat
 
       - name: debug1
         run: |
           ls -l
+          ls -l nodegoat
 
       - name: package (zip)
-        run: zip -r upload.zip NodeGoat -x *node_modules/*
+        run: zip -r upload.zip nodegoat -x *node_modules/*
 
       - name: save archive
         uses: actions/upload-artifact@v2
