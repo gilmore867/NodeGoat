@@ -11,8 +11,12 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v2
 
+      - name: debug1
+        run: |
+          ls -l
+
       - name: package (zip)
-        run: zip -r upload.zip nodegoat -x *node_modules/*
+        run: zip -r upload.zip NodeGoat -x *node_modules/*
 
       - name: save archive
         uses: actions/upload-artifact@v2
