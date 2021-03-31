@@ -32,13 +32,11 @@ jobs:
       - name: get policy flaws
         run: |
           cd /tmp
-          export
-          echo ID: ${VERACODE_API_KEY_ID}
-          echo secrets.ID: ${{ secrets.VERACODE_API_ID }}
+          which jq
           guid=$(http --auth-type veracode_hmac "https://api.veracode.com/appsec/v1/applications?name=NodeGoat" | jq -r '._embedded.applications[0].guid') 
-          echo ${guid}
+          echo GUID: ${guid}
           total_flaws=$(http --auth-type veracode_hmac "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
-          echo ${total_flaws}
+          echo TOTAL_FLAWS: ${total_flaws}
           http --auth-type veracode_hmac "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True&size=${total_flaws}" > policy_flaws.json
           ls -l
 
@@ -46,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: policy-flaws
-          path: policy_flaws.json
+          path: /tmp/policy_flaws.json
 
   import-policy-flaws:
     needs: get-policy-flaws
