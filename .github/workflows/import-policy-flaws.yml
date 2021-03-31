@@ -5,14 +5,23 @@ name: Policy scan and Issue importer
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
+  # env-testing:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: env testing
+  #       run: |
+  #         echo Starting...
+  #        echo
+
   get-policy-flaws:
+    #needs: env-testing
     runs-on: ubuntu-latest
     #environment: veracode
     container: 
       image: veracode/api-signing:latest
       env:
-        VERACODE_API_ID_KEY: ${{ env.VERACODE_API_ID }}
-        VERACODE_API_ID_SECRET: ${VERACODE_API_KEY}
+        VERACODE_API_KEY_ID: ${{ secrets.VERACODE_API_ID }}
+        VERACODE_API_KEY_SECRET: ${{ secrets.VERACODE_API_KEY }}
       #options: --user root
     steps:
       # Note: this will likely fail if there are more than 500 flaws, due to Veracode results limiting
@@ -25,7 +34,7 @@ jobs:
           cd /tmp
           export
           echo ID: ${VERACODE_API_KEY_ID}
-          echo env.ID: ${{ env.VERACODE_API_ID }}
+          echo secrets.ID: ${{ secrets.VERACODE_API_ID }}
           guid=$(http --auth-type veracode_hmac "https://api.veracode.com/appsec/v1/applications?name=NodeGoat" | jq -r '._embedded.applications[0].guid') 
           echo ${guid}
           total_flaws=$(http --auth-type veracode_hmac "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
