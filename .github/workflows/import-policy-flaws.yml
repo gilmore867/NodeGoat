@@ -33,6 +33,9 @@ jobs:
         run: |
           cd /tmp
           which jq
+          http --auth-type veracode_hmac "https://api.veracode.com/appsec/v1/applications?name=NodeGoat"
+          echo TAKE 2
+          http --auth-type veracode_hmac https://api.veracode.com/appsec/v1/applications?name=NodeGoat
           guid=$(http --auth-type veracode_hmac "https://api.veracode.com/appsec/v1/applications?name=NodeGoat" | jq -r '._embedded.applications[0].guid') 
           echo GUID: ${guid}
           total_flaws=$(http --auth-type veracode_hmac "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
