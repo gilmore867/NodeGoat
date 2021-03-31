@@ -24,10 +24,11 @@ jobs:
       - name: get policy flaws
         run: |
           cd /tmp
+          echo $0
           which jq
           export VERACODE_API_KEY_ID=ae0210a7e2f7615c0181d74c5eebd2ec
           export VERACODE_API_KEY_SECRET=ebba3e755dd93ca89cf5f455b6449cd297af6cd79ebca3b61ad3056e9587f04ddfaaf47e823b1455f2cb10bb499bb0f117683bbd4439db89aedfc9fc1313f304
-          http --auth-type veracode_hmac "https://api.veracode.com/appsec/v1/applications?name=NodeGoat"
+          http -v --debug --auth-type veracode_hmac "https://api.veracode.com/appsec/v1/applications?name=NodeGoat"
           echo TAKE 2
           http --auth-type veracode_hmac https://api.veracode.com/appsec/v1/applications?name=NodeGoat
           guid=$(http --auth-type veracode_hmac "https://api.veracode.com/appsec/v1/applications?name=NodeGoat" | jq -r '._embedded.applications[0].guid') 
