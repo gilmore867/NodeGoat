@@ -5,18 +5,10 @@ name: Policy scan and Issue importer
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  # env-testing:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: env testing
-  #       run: |
-  #         echo Starting...
-  #        echo
-
   get-policy-flaws:
     #needs: env-testing
     runs-on: ubuntu-latest
-    #environment: veracode
+    environment: veracode
     container: 
       image: veracode/api-signing:latest
       env:
@@ -33,6 +25,9 @@ jobs:
         run: |
           cd /tmp
           which jq
+          echo ENV ${{ env.VERACODE_API_KEY_ID }}
+          export VERACODE_API_KEY_ID=${{ secrets.VERACODE_API_ID }}
+          export VERACODE_API_KEY_SECRET=${{ secrets.VERACODE_API_KEY }}
           http --auth-type veracode_hmac "https://api.veracode.com/appsec/v1/applications?name=NodeGoat"
           echo TAKE 2
           http --auth-type veracode_hmac https://api.veracode.com/appsec/v1/applications?name=NodeGoat
