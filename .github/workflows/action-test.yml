@@ -2,7 +2,8 @@
 
 name: Pipeline scan and Issue importer
 
-on: [push, pull_request, workflow_dispatch]
+#on: [push, pull_request, workflow_dispatch]
+on: gollum          # sort of a dummy to prevent this from running
 
 jobs:
   package:
@@ -22,7 +23,7 @@ jobs:
           name: scan-target
           path: upload.zip
 
-  scan:
+  pipeline-scan:
     needs: package
     runs-on: ubuntu-latest
     container: 
@@ -62,8 +63,8 @@ jobs:
           name: filtered-results
           path: filtered_results.json
 
-  import-issues:
-    needs: scan
+  import-pipeline-issues:
+    needs: pipeline-scan
     runs-on: ubuntu-latest
     steps:
       - name: get scan results
@@ -78,7 +79,7 @@ jobs:
           ls -l /tmp
 
       - name: import flaws as issues
-        uses: buzzcode/pipeline-to-issues@main
+        uses: buzzcode/veracode-flaws-to-issues@main
         with:
           pipeline-results-json: 'filtered_results.json'
           github-token: ${{ secrets.GITHUB_TOKEN }}
