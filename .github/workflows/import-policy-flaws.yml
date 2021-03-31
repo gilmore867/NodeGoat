@@ -10,6 +10,9 @@ jobs:
     environment: veracode
     container: 
       image: veracode/api-signing:latest
+      env:
+        VERACODE_API_ID_KEY: ${VERACODE_API_KEY_ID}
+        VERACODE_API_ID_SECRET: ${VERACODE_API_KEY_SECRET}
       #options: --user root
     steps:
       # Note: this will likely fail if there are more than 500 flaws, due to Veracode results limiting
