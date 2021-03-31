@@ -11,7 +11,7 @@ jobs:
     #environment: veracode
     container: 
       image: veracode/api-signing:latest
-      #env:
+      # env:
       #  VERACODE_API_KEY_ID: ${{ secrets.VERACODE_API_ID }}
       #  VERACODE_API_KEY_SECRET: ${{ secrets.VERACODE_API_KEY }}
       #options: --user root
@@ -26,16 +26,14 @@ jobs:
           cd /tmp
           echo $0
           which jq
-          export VERACODE_API_KEY_ID=ae0210a7e2f7615c0181d74c5eebd2ec
-          export VERACODE_API_KEY_SECRET=ebba3e755dd93ca89cf5f455b6449cd297af6cd79ebca3b61ad3056e9587f04ddfaaf47e823b1455f2cb10bb499bb0f117683bbd4439db89aedfc9fc1313f304
+          export VERACODE_API_KEY_ID=${{ secrets.VERACODE_API_ID }}
+          export VERACODE_API_KEY_SECRET=${{ secrets.VERACODE_API_KEY }}
           http -v --debug --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=NodeGoat"
-          echo TAKE 2
-          http --auth-type veracode_hmac https://api.veracode.com/appsec/v1/applications?name=NodeGoat
-          guid=$(http --auth-type veracode_hmac "https://api.veracode.com/appsec/v1/applications?name=NodeGoat" | jq -r '._embedded.applications[0].guid') 
+          guid=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=NodeGoat" | jq -r '._embedded.applications[0].guid') 
           echo GUID: ${guid}
-          total_flaws=$(http --auth-type veracode_hmac "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
+          total_flaws=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
           echo TOTAL_FLAWS: ${total_flaws}
-          http --auth-type veracode_hmac "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True&size=${total_flaws}" > policy_flaws.json
+          http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True&size=${total_flaws}" > policy_flaws.json
           ls -l
 
       - name: save results file
@@ -60,10 +58,10 @@ jobs:
           ls -l
           ls -l /tmp
 
-      - name: import flaws as issues
-        uses: buzzcode/veracode-flaws-to-issues@main
-        with:
-          scan-results-json: '/tmp/policy_flaws.json'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: import flaws as issues
+      #   uses: buzzcode/veracode-flaws-to-issues@main
+      #   with:
+      #     scan-results-json: '/tmp/policy_flaws.json'
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
 
 
