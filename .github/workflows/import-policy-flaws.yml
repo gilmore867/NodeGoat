@@ -7,18 +7,21 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   get-policy-flaws:
     runs-on: ubuntu-latest
+    environment: veracode
     container: 
       image: veracode/api-signing:latest
       #options: --user root
     steps:
       # Note: this will likely fail if there are more than 500 flaws, due to Veracode results limiting
       #   (would need a more elaborate method)
+      #
+      # Note 2: Assumes Environment Secrets of VERACODE_API_KEY_ID and VERACODE_API_KEY_SECRET
+      #   (not Repo Secrets)
       - name: get policy flaws
         run: |
           cd /tmp
           export
-          echo ${VERACODE_API_KEY_ID}
-          echo ${VERACODE_API_KEY_SECRET}
+          echo ID: ${VERACODE_API_KEY_ID}
           guid=$(http --auth-type veracode_hmac "https://api.veracode.com/appsec/v1/applications?name=NodeGoat" | jq -r '._embedded.applications[0].guid') 
           echo ${guid}
           total_flaws=$(http --auth-type veracode_hmac "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
