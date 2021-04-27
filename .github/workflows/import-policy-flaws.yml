@@ -7,10 +7,8 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   get-policy-flaws:
     runs-on: ubuntu-latest
-    #environment: veracode
     container: 
       image: veracode/api-signing:latest
-      #options: --user root
     steps:
       # Note: this will likely fail if there are more than 500 flaws, due to Veracode results limiting
       #   (would need a more elaborate method)
@@ -49,7 +47,7 @@ jobs:
           ls -l /tmp
 
       - name: import flaws as issues
-        uses: buzzcode/veracode-flaws-to-issues@main
+        uses: buzzcode/veracode-flaws-to-issues@v1
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           github-token: ${{ secrets.GITHUB_TOKEN }}
