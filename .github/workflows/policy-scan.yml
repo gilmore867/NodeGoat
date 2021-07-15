@@ -1,0 +1,54 @@
+# foo
+
+name: Policy scan
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+        with:
+          path: nodegoat
+
+      - name: package (zip)
+        run: zip -r upload.zip nodegoat -x *node_modules/* *.git/*
+
+      - name: save archive
+        uses: actions/upload-artifact@v2
+        with:
+          name: scan-target
+          path: upload.zip
+
+  policy-scan:
+    needs: package
+    runs-on: ubuntu-latest
+    container: 
+      image: veracode/api-wrapper-java:latest
+      #options: --user root
+    steps:
+      - name: get archive
+        uses: actions/download-artifact@v2
+        with:
+          name: scan-target
+          path: /tmp
+
+      - name: debug1
+        run: |
+          pwd
+          ls -l
+          ls -l /tmp
+
+      - name: scan
+        run: |
+          java -jar /opt/veracode/api-wrapper.jar \
+              -vid ${{ secrets.VERACODE_API_ID }} -vkey ${{ secrets.VERACODE_API_KEY }} \
+              -action UploadAndScan \
+              -appname "NodeGoat" -createprofile false \
+              -filepath /tmp/upload.zip -version "GitHub ${{ GITHUB_RUN_NUMBER }}"                
+        continue-on-error: true
+
+
+
