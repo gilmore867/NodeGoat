@@ -38,11 +38,7 @@ jobs:
       - name: debug1
         run: |
           pwd
-          ls -l
           ls -l /tmp
-          echo run number = ${{ env.GITHUB_RUN_NUMBER }}
-          echo "run number = ${{ env.GITHUB_RUN_NUMBER }}"
-          echo "run number = $GITHUB_RUN_NUMBER"
 
       - name: scan
         run: |
