@@ -40,6 +40,9 @@ jobs:
           pwd
           ls -l
           ls -l /tmp
+          echo run number = ${{ env.GITHUB_RUN_NUMBER }}
+          echo "run number = ${{ env.GITHUB_RUN_NUMBER }}"
+          echo "run number = $GITHUB_RUN_NUMBER"
 
       - name: scan
         run: |
@@ -47,7 +50,7 @@ jobs:
               -vid ${{ secrets.VERACODE_API_ID }} -vkey ${{ secrets.VERACODE_API_KEY }} \
               -action UploadAndScan \
               -appname "NodeGoat" -createprofile false \
-              -filepath /tmp/upload.zip -version "GitHub ${{ env.GITHUB_RUN_NUMBER }}"                
+              -filepath /tmp/upload.zip -version "GitHub $GITHUB_RUN_NUMBER"                
         continue-on-error: true
 
 
